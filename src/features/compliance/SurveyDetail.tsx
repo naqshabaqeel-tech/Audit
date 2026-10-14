@@ -35,8 +35,9 @@ export function SurveyDetail({
   const hasPrice = formatPrice(answer.price) !== ''
 
   return (
-    <section className="flex h-full min-w-0 flex-1 flex-col justify-between overflow-y-auto bg-white pt-8">
-      <div className="flex w-full flex-col gap-6 px-8 pb-6">
+    <section className="flex h-full min-w-0 flex-1 flex-col bg-white">
+      {/* Only the content scrolls; the action footer stays pinned to the bottom */}
+      <div className="flex min-h-0 w-full flex-1 flex-col gap-6 overflow-y-auto px-8 pt-8 pb-6">
         <div className="flex items-center gap-3">
           <button
             type="button"

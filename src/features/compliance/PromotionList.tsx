@@ -1,3 +1,4 @@
+import plusIcon from '../../assets/icons/plus.svg'
 import storefrontIcon from '../../assets/icons/storefront-sm.svg'
 import { Button } from '../../components/Button'
 import { statusBadge, type Promotion, type Vendor } from './data'
@@ -18,12 +19,7 @@ export function PromotionList({ vendors, promotions, onAddPromotion, ...panel }:
     id: promotion.id,
     groupId: promotion.vendorId,
     title: promotion.name,
-    subtitle: (
-      <>
-        {promotion.offer}
-        {!promotion.ordered && <span className="font-medium text-gray-700"> · Not ordered</span>}
-      </>
-    ),
+    subtitle: promotion.ordered ? undefined : <span className="font-medium text-gray-700">Not ordered</span>,
     searchText: promotion.offer,
     badge: statusBadge[promotion.status],
     done: promotion.status !== 'open',
@@ -38,6 +34,7 @@ export function PromotionList({ vendors, promotions, onAddPromotion, ...panel }:
       groupIcon={storefrontIcon}
       action={
         <Button variant="secondary" onClick={onAddPromotion} className="h-9" title="Add a promotion that wasn’t ordered">
+          <img src={plusIcon} alt="" width={14} height={14} />
           Add
         </Button>
       }

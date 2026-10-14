@@ -11,7 +11,7 @@ export type ListItem = {
   id: string
   groupId: string
   title: string
-  subtitle: React.ReactNode
+  subtitle?: React.ReactNode
   /** Text matched by the search box, in addition to the title and group name */
   searchText: string
   badge: { label: string; tone: BadgeTone }
@@ -134,7 +134,7 @@ export function GroupedListPanel({
             const listId = `${id}-group-${group.id}`
             return (
               <section key={group.id} className="border-b border-gray-200 last:border-b-0">
-                <h2 className="sticky top-0 z-[1] bg-white">
+                <h2 className="sticky top-0 z-[1] bg-gray-25">
                   <button
                     type="button"
                     onClick={() => toggleGroup(group.id)}
@@ -178,7 +178,7 @@ export function GroupedListPanel({
                           >
                             <span className="flex min-w-0 flex-1 flex-col gap-1">
                               <span className="truncate text-base font-medium text-gray-800">{item.title}</span>
-                              <span className="truncate text-sm text-gray-500">{item.subtitle}</span>
+                              {item.subtitle && <span className="truncate text-sm text-gray-500">{item.subtitle}</span>}
                             </span>
                             <Badge tone={item.badge.tone}>{item.badge.label}</Badge>
                           </button>
