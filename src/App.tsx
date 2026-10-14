@@ -1,9 +1,7 @@
+import { ComplianceDetails } from './features/compliance/ComplianceDetails'
+
 function App() {
-  return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-3xl font-bold">Audit</h1>
-    </main>
-  )
+  return <ComplianceDetails />
 }
 
 export default App

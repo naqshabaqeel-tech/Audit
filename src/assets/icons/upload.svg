@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Upload">
+<g id="Vector">
+</g>
+<path id="Vector_2" d="M13.75 10H17.5C17.6658 10 17.8247 10.0658 17.9419 10.1831C18.0592 10.3003 18.125 10.4592 18.125 10.625V15.625C18.125 15.7908 18.0592 15.9497 17.9419 16.0669C17.8247 16.1842 17.6658 16.25 17.5 16.25H2.5C2.33424 16.25 2.17527 16.1842 2.05806 16.0669C1.94085 15.9497 1.875 15.7908 1.875 15.625V10.625C1.875 10.4592 1.94085 10.3003 2.05806 10.1831C2.17527 10.0658 2.33424 10 2.5 10H6.25" stroke="#266DF0" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M10 10V1.875" stroke="#266DF0" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M6.25 5.625L10 1.875L13.75 5.625" stroke="#266DF0" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_5" d="M14.6875 14.0625C15.2053 14.0625 15.625 13.6428 15.625 13.125C15.625 12.6072 15.2053 12.1875 14.6875 12.1875C14.1697 12.1875 13.75 12.6072 13.75 13.125C13.75 13.6428 14.1697 14.0625 14.6875 14.0625Z" fill="#266DF0"/>
+</g>
+</svg>
