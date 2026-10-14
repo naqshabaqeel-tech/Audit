@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — map Figma design system variables here.
+ * Each variable becomes a utility, e.g. --color-primary -> bg-primary / text-primary.
+ */
+@theme {
+  /* --color-primary: #000000; */
+  /* --font-sans: "Inter", sans-serif; */
+}
