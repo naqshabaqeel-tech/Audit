@@ -14,7 +14,8 @@ export type ListItem = {
   subtitle?: React.ReactNode
   /** Text matched by the search box, in addition to the title and group name */
   searchText: string
-  badge: { label: string; tone: BadgeTone }
+  /** Omitted to show no badge, e.g. for the default status */
+  badge?: { label: string; tone: BadgeTone }
   /** Counts towards the group's "done/total" figure */
   done: boolean
 }
@@ -34,6 +35,10 @@ type GroupedListPanelProps = {
   groupIcon?: string
   /** Optional control shown beside the search box, e.g. an "Add" button */
   action?: React.ReactNode
+  /** Keep only the selected item's group open; moving to another group closes the previous one */
+  accordion?: boolean
+  /** Smaller item titles for a quieter list */
+  dense?: boolean
 }
 
 export function GroupedListPanel({
@@ -47,17 +52,31 @@ export function GroupedListPanel({
   onClose,
   groupIcon,
   action,
+  accordion = false,
+  dense = false,
 }: GroupedListPanelProps) {
-  const [query, setQuery] = useState('')
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
-  const [prevSelectedId, setPrevSelectedId] = useState(selectedId)
-
   const selectedGroupId = items.find((item) => item.id === selectedId)?.groupId
+  const allButSelectedGroup = () => new Set(groups.filter((g) => g.id !== selectedGroupId).map((g) => g.id))
 
-  // Re-open the selected item's group whenever the selection moves (e.g. via "Save and Next")
+  const [query, setQuery] = useState('')
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => (accordion ? allButSelectedGroup() : new Set()))
+  const [prevSelectedId, setPrevSelectedId] = useState(selectedId)
+  const [prevAccordion, setPrevAccordion] = useState(accordion)
+
+  const prevGroupId = items.find((item) => item.id === prevSelectedId)?.groupId
+
+  // Switching into accordion mode starts from just the selected group open; leaving it opens every group
+  if (prevAccordion !== accordion) {
+    setPrevAccordion(accordion)
+    setCollapsed(accordion ? allButSelectedGroup() : new Set())
+  }
+
+  // Keep the selected item's group open whenever the selection moves (e.g. via "Save and Next")
   if (prevSelectedId !== selectedId) {
     setPrevSelectedId(selectedId)
-    if (selectedGroupId && collapsed.has(selectedGroupId)) {
+    if (accordion && selectedGroupId !== prevGroupId) {
+      setCollapsed(allButSelectedGroup())
+    } else if (selectedGroupId && collapsed.has(selectedGroupId)) {
       setCollapsed((prev) => {
         const next = new Set(prev)
         next.delete(selectedGroupId)
@@ -177,10 +196,10 @@ export function GroupedListPanel({
                             }`}
                           >
                             <span className="flex min-w-0 flex-1 flex-col gap-1">
-                              <span className="truncate text-base font-medium text-gray-800">{item.title}</span>
+                              <span className={`truncate font-medium text-gray-800 ${dense ? 'text-sm' : 'text-base'}`}>{item.title}</span>
                               {item.subtitle && <span className="truncate text-sm text-gray-500">{item.subtitle}</span>}
                             </span>
-                            <Badge tone={item.badge.tone}>{item.badge.label}</Badge>
+                            {item.badge && <Badge tone={item.badge.tone}>{item.badge.label}</Badge>}
                           </button>
                         </li>
                       )

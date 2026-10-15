@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/Sidebar'
+import { useDesignVariation } from '../../components/useDesignVariation'
+import { VariationToggle } from '../../components/VariationToggle'
 import { AddPromotionDialog } from './AddPromotionDialog'
 import { ComplianceSteps } from './ComplianceSteps'
 import { catalog, promotions as initialPromotions, samplePhotos, steps, vendors, type Promotion } from './data'
@@ -13,6 +15,7 @@ import { SurveyList } from './SurveyList'
 const emptySurveyAnswer: SurveyAnswer = { price: '', description: '' }
 
 export function ComplianceDetails() {
+  const { variation, toggle: toggleVariation } = useDesignVariation()
   const [promotions, setPromotions] = useState(initialPromotions)
   const [selectedId, setSelectedId] = useState('coremark-4')
   const [activeStep, setActiveStep] = useState(0)
@@ -106,7 +109,10 @@ export function ComplianceDetails() {
 
   return (
     <div className="flex h-dvh bg-white">
-      <Sidebar activeItem="Locations" />
+      <Sidebar
+        activeItem="Locations"
+        footer={<VariationToggle variation={variation} onToggle={toggleVariation} />}
+      />
       <main className="flex min-w-0 flex-1 flex-col p-2">
         <div className="flex h-full flex-col overflow-hidden rounded-lg border border-outline bg-white">
           <LocationHeader canComplete={allMarked && surveyComplete} />
@@ -122,6 +128,8 @@ export function ComplianceDetails() {
                   open={listOpen}
                   onClose={() => setListOpen(false)}
                   onAddPromotion={() => setAddOpen(true)}
+                  accordion={variation !== 'B'}
+                  quiet={variation === 'C'}
                 />
                 <PromotionDetail
                   key={selectedId}
@@ -135,6 +143,7 @@ export function ComplianceDetails() {
                   listOpen={listOpen}
                   onOpenList={() => setListOpen(true)}
                   onRemove={selected.ordered ? undefined : removePromotion}
+                  variation={variation}
                 />
               </>
             )}

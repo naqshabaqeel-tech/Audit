@@ -19,9 +19,11 @@ const navItems = [
 
 type SidebarProps = {
   activeItem?: string
+  /** Pinned to the bottom of the nav bar */
+  footer?: React.ReactNode
 }
 
-export function Sidebar({ activeItem = 'Locations' }: SidebarProps) {
+export function Sidebar({ activeItem = 'Locations', footer }: SidebarProps) {
   return (
     <aside className="flex h-full w-[58px] shrink-0 flex-col gap-[30px] bg-background py-5 pr-2 pl-3">
       <button
@@ -47,6 +49,7 @@ export function Sidebar({ activeItem = 'Locations' }: SidebarProps) {
           </a>
         ))}
       </nav>
+      {footer && <div className="mt-auto flex justify-center">{footer}</div>}
     </aside>
   )
 }

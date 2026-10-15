@@ -20,23 +20,26 @@ const statusStyles: Record<PromotionStatus, { label: string; icon?: string; clas
   },
 }
 
-const options: MarkStatus[] = ['compliant', 'not-compliant']
+const options: PromotionStatus[] = ['open', 'compliant', 'not-compliant']
 
 type StatusSelectProps = {
+  /** Undefined means the promotion hasn't been marked, shown as "Open" */
   value?: MarkStatus
-  onChange: (status: MarkStatus) => void
+  /** Choosing "Open" un-marks the promotion and reports `undefined` */
+  onChange: (status: MarkStatus | undefined) => void
   'aria-labelledby'?: string
 }
 
 /** Status picker whose menu opens upwards, for use in footers. Unmarked promotions read as "Open". */
 export function StatusSelect({ value, onChange, 'aria-labelledby': labelledBy }: StatusSelectProps) {
   const [open, setOpen] = useState(false)
-  // -1 = nothing highlighted, so an unmarked promotion opens with no option looking selected
+  // Keyboard highlight; -1 = none, so opening with the mouse only shows the selected option
   const [activeIndex, setActiveIndex] = useState(-1)
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
   const listId = useId()
-  const current = statusStyles[value ?? 'open']
+  const currentStatus: PromotionStatus = value ?? 'open'
+  const current = statusStyles[currentStatus]
 
   useEffect(() => {
     if (!open) return
@@ -48,12 +51,12 @@ export function StatusSelect({ value, onChange, 'aria-labelledby': labelledBy }:
   }, [open])
 
   const openMenu = (fromKeyboard = false) => {
-    setActiveIndex(value ? options.indexOf(value) : fromKeyboard ? 0 : -1)
+    setActiveIndex(fromKeyboard ? options.indexOf(currentStatus) : -1)
     setOpen(true)
   }
 
-  const choose = (status: MarkStatus) => {
-    onChange(status)
+  const choose = (status: PromotionStatus) => {
+    onChange(status === 'open' ? undefined : status)
     setOpen(false)
     triggerRef.current?.focus()
   }
@@ -128,7 +131,7 @@ export function StatusSelect({ value, onChange, 'aria-labelledby': labelledBy }:
         >
           {options.map((status, index) => {
             const option = statusStyles[status]
-            const isSelected = status === value
+            const isSelected = status === currentStatus
             return (
               <li
                 key={status}
@@ -143,7 +146,8 @@ export function StatusSelect({ value, onChange, 'aria-labelledby': labelledBy }:
                     : `border-transparent text-gray-700 ${index === activeIndex ? 'bg-gray-50' : ''}`
                 }`}
               >
-                <img src={option.icon} alt="" width={16} height={16} />
+                {/* Open has no icon; keep its label aligned with the others */}
+                {option.icon ? <img src={option.icon} alt="" width={16} height={16} /> : <span className="size-4" />}
                 {option.label}
               </li>
             )

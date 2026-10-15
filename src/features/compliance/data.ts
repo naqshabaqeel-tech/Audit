@@ -25,7 +25,8 @@ export type Promotion = {
   status: PromotionStatus
   unitPrice: string
   orderedTier: string
-  signage: string
+  /** Signage the promotion requires in store, e.g. ['Dangler', 'Shelf talker'] */
+  requiredSignage: string[]
 }
 
 export const location = {
@@ -83,6 +84,8 @@ const seeds: Record<string, PromotionSeed[]> = {
   ],
 }
 
+const signageSets = [['Dangler', 'Shelf talker'], ['Window cling'], ['Dangler', 'Floor graphic', 'Shelf talker']]
+
 export const promotions: Promotion[] = vendors.flatMap((vendor) =>
   (seeds[vendor.id] ?? []).map(([name, offer, status = 'open', unitPrice = '$10.10'], index) => ({
     id: `${vendor.id}-${index + 1}`,
@@ -93,7 +96,7 @@ export const promotions: Promotion[] = vendors.flatMap((vendor) =>
     status,
     unitPrice,
     orderedTier: '2 for $13',
-    signage: 'Dangler or',
+    requiredSignage: signageSets[index % signageSets.length],
   })),
 )
 
@@ -120,9 +123,9 @@ export const catalog: Promotion[] = catalogSeeds.map(([vendorId, name, offer, un
   status: 'open',
   unitPrice,
   orderedTier: 'Not ordered',
-  signage: 'Dangler or',
+  requiredSignage: ['Dangler'],
 }))
 
-export const pricingTiers = ['Market Price', '1 for $1', '1 for $1.50', '2 for $2.50', '2 for $2.50']
+export const pricingTiers = ['Market Price', '1 for $1', '1 for $1.50', '2 for $2.50', '2 for $13']
 
 export const samplePhotos = [promoPhoto, promoPhoto]
