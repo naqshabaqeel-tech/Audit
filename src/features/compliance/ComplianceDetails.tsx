@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Sidebar } from '../../components/Sidebar'
-import { useDesignVariation } from '../../components/useDesignVariation'
-import { VariationToggle } from '../../components/VariationToggle'
 import { AddPromotionDialog } from './AddPromotionDialog'
 import { ComplianceSteps } from './ComplianceSteps'
 import { catalog, promotions as initialPromotions, samplePhotos, steps, vendors, type Promotion } from './data'
 import { LocationHeader } from './LocationHeader'
 import { PromotionDetail, type PromotionAnswers } from './PromotionDetail'
 import { PromotionList } from './PromotionList'
+import { programs, type ProgramAnswers } from './programData'
+import { ProgramDetail } from './ProgramDetail'
+import { ProgramList } from './ProgramList'
 import { formatPrice, surveyCategories, surveyItems, type SurveyAnswer, type SurveyStatus } from './surveyData'
 import { SurveyDetail } from './SurveyDetail'
 import { SurveyList } from './SurveyList'
@@ -15,7 +16,6 @@ import { SurveyList } from './SurveyList'
 const emptySurveyAnswer: SurveyAnswer = { price: '', description: '' }
 
 export function ComplianceDetails() {
-  const { variation, toggle: toggleVariation } = useDesignVariation()
   const [promotions, setPromotions] = useState(initialPromotions)
   const [selectedId, setSelectedId] = useState('coremark-4')
   const [activeStep, setActiveStep] = useState(0)
@@ -24,6 +24,10 @@ export function ComplianceDetails() {
   const [answers, setAnswers] = useState<Record<string, PromotionAnswers>>({
     'coremark-4': { photos: samplePhotos },
   })
+  const [programSelectedId, setProgramSelectedId] = useState(programs[0].id)
+  // Drafts hold what's being entered; saved holds what "Save and Next" has committed
+  const [programDrafts, setProgramDrafts] = useState<Record<string, ProgramAnswers>>({})
+  const [programSaved, setProgramSaved] = useState<Record<string, ProgramAnswers>>({})
   const [surveySelectedId, setSurveySelectedId] = useState(surveyItems[0].id)
   // Drafts hold what's being typed; saved holds what "Save and Next" has committed
   const [surveyDrafts, setSurveyDrafts] = useState<Record<string, SurveyAnswer>>({})
@@ -81,6 +85,27 @@ export function ComplianceDetails() {
     setListOpen(false)
   }
 
+  const programIndex = programs.findIndex((program) => program.id === programSelectedId)
+  const program = programs[programIndex]
+  const programAnswers = programDrafts[programSelectedId] ?? programSaved[programSelectedId] ?? { photos: [] }
+  const programStatuses = Object.fromEntries(programs.map((p) => [p.id, programSaved[p.id]?.status ?? 'open'] as const))
+  const programsComplete = programs.every((p) => programSaved[p.id]?.status)
+
+  const selectProgram = (id: string) => {
+    setProgramSelectedId(id)
+    setListOpen(false)
+  }
+
+  const saveProgramAndNext = () => {
+    const saved = { ...programSaved, [programSelectedId]: programAnswers }
+    setProgramSaved(saved)
+    // Next program not yet marked, wrapping round; once all are done, move on to the next step
+    const next =
+      programs.slice(programIndex + 1).find((p) => !saved[p.id]?.status) ?? programs.find((p) => !saved[p.id]?.status)
+    if (next) setProgramSelectedId(next.id)
+    else setActiveStep((step) => Math.min(step + 1, steps.length - 1))
+  }
+
   const saveSurveyAndNext = () => {
     const saved = { ...surveySaved, [surveySelectedId]: { ...surveyAnswer, price: formatPrice(surveyAnswer.price) } }
     setSurveySaved(saved)
@@ -109,13 +134,10 @@ export function ComplianceDetails() {
 
   return (
     <div className="flex h-dvh bg-white">
-      <Sidebar
-        activeItem="Locations"
-        footer={<VariationToggle variation={variation} onToggle={toggleVariation} />}
-      />
+      <Sidebar activeItem="Locations" />
       <main className="flex min-w-0 flex-1 flex-col p-2">
         <div className="flex h-full flex-col overflow-hidden rounded-lg border border-outline bg-white">
-          <LocationHeader canComplete={allMarked && surveyComplete} />
+          <LocationHeader canComplete={allMarked && programsComplete && surveyComplete} />
           <ComplianceSteps activeStep={activeStep} completedSteps={1} onStepChange={setActiveStep} />
           <div className="relative flex min-h-0 flex-1">
             {activeStep === 0 && (
@@ -128,8 +150,6 @@ export function ComplianceDetails() {
                   open={listOpen}
                   onClose={() => setListOpen(false)}
                   onAddPromotion={() => setAddOpen(true)}
-                  accordion={variation !== 'B'}
-                  quiet={variation === 'C'}
                 />
                 <PromotionDetail
                   key={selectedId}
@@ -143,15 +163,32 @@ export function ComplianceDetails() {
                   listOpen={listOpen}
                   onOpenList={() => setListOpen(true)}
                   onRemove={selected.ordered ? undefined : removePromotion}
-                  variation={variation}
                 />
               </>
             )}
             {activeStep === 1 && (
-              <div className="flex flex-1 flex-col items-center justify-center gap-1 px-8 text-center">
-                <h1 className="text-base font-semibold text-gray-800">Programs</h1>
-                <p className="text-sm text-gray-500">This step hasn’t been designed yet.</p>
-              </div>
+              <>
+                <ProgramList
+                  vendors={vendors}
+                  statuses={programStatuses}
+                  selectedId={programSelectedId}
+                  onSelect={selectProgram}
+                  open={listOpen}
+                  onClose={() => setListOpen(false)}
+                />
+                <ProgramDetail
+                  key={programSelectedId}
+                  program={program}
+                  vendorName={vendors.find((v) => v.id === program.vendorId)?.name}
+                  position={programIndex + 1}
+                  total={programs.length}
+                  answers={programAnswers}
+                  onChange={(answers) => setProgramDrafts((all) => ({ ...all, [programSelectedId]: answers }))}
+                  onSaveAndNext={saveProgramAndNext}
+                  listOpen={listOpen}
+                  onOpenList={() => setListOpen(true)}
+                />
+              </>
             )}
             {activeStep === 2 && (
               <>

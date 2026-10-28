@@ -12,19 +12,17 @@ type PromotionListProps = {
   open: boolean
   onClose: () => void
   onAddPromotion: () => void
-  accordion?: boolean
-  /** Quieter list: smaller titles and no badge for promotions that are still open */
-  quiet?: boolean
 }
 
-export function PromotionList({ vendors, promotions, onAddPromotion, quiet = false, ...panel }: PromotionListProps) {
+export function PromotionList({ vendors, promotions, onAddPromotion, ...panel }: PromotionListProps) {
   const items: ListItem[] = promotions.map((promotion) => ({
     id: promotion.id,
     groupId: promotion.vendorId,
     title: promotion.name,
     subtitle: promotion.ordered ? undefined : <span className="font-medium text-gray-700">Not ordered</span>,
     searchText: promotion.offer,
-    badge: quiet && promotion.status === 'open' ? undefined : statusBadge[promotion.status],
+    // Only marked promotions get a badge, so an unbadged row reads as "still to do"
+    badge: promotion.status === 'open' ? undefined : statusBadge[promotion.status],
     done: promotion.status !== 'open',
   }))
 
@@ -35,7 +33,8 @@ export function PromotionList({ vendors, promotions, onAddPromotion, quiet = fal
       groups={vendors}
       items={items}
       groupIcon={storefrontIcon}
-      dense={quiet}
+      dense
+      accordion
       action={
         <Button variant="secondary" onClick={onAddPromotion} className="h-9" title="Add a promotion that wasn’t ordered">
           <img src={plusIcon} alt="" width={14} height={14} />
